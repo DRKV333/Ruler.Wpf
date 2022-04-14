@@ -30,10 +30,10 @@ namespace RulerControl.Wpf.PositionManagers
             control.Margin = new Thickness(0, stepSize, 0, 0);
         }
 
-        protected override bool OnUpdateMakerPosition(Line marker, Point position)
+        protected override double? OnUpdateMakerPosition(Line marker, Point position)
         {
             if (position.Y <= 0 || position.Y >= GetSize())
-                return false;
+                return null;
 
             marker.X1 = 0;
             marker.Y1 = position.Y;
@@ -41,7 +41,7 @@ namespace RulerControl.Wpf.PositionManagers
             marker.X2 = GetHeight();
             marker.Y2 = position.Y;
 
-            return true;
+            return position.Y;
         }
     }
 }

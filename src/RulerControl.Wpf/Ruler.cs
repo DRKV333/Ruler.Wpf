@@ -5,6 +5,7 @@
 // 
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
@@ -20,8 +21,10 @@ namespace RulerControl.Wpf
 {
     [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "updateSubject", Justification ="Managed by unload method")]
     [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "updateSubcription", Justification = "Managed by unload method")]
-    public class Ruler : RulerBase, IDisposable
+    public class Ruler : RulerBase, IDisposable, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private const int SubStepNumber = 10;
 
         private readonly TimeSpan RefreshDelay = TimeSpan.FromMilliseconds(10);
@@ -53,6 +56,20 @@ namespace RulerControl.Wpf
         private Rectangle StepRepeaterControl => stepRepeaterControl ?? (stepRepeaterControl = Template.FindName("stepRepeaterControl", this) as Rectangle);
         private VisualBrush StepRepeaterBrush => stepRepeaterBrush ?? (stepRepeaterBrush = Template.FindName("stepRepeaterBrush", this) as VisualBrush);
         private Canvas LabelsControl => labelsControl ?? (labelsControl = Template.FindName("labelsControl", this) as Canvas);
+
+        private double markerPosition;
+        public double MarkerPosition
+        {
+            get => markerPosition;
+            private set
+            {
+                if (value != markerPosition)
+                {
+                    markerPosition = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MarkerPosition)));
+                }
+            }
+        }
 
         private void OnRulerLoaded(object sender, RoutedEventArgs e)
         {
@@ -104,7 +121,15 @@ namespace RulerControl.Wpf
 
             var positionUpdated = rulerPostionControl.UpdateMakerPosition(Marker, point);
 
-            Marker.Visibility = positionUpdated ? Visibility.Visible : Visibility.Collapsed;
+            if (positionUpdated != null)
+            {
+                MarkerPosition = positionUpdated.Value / rulerPostionControl.GetSize() * MaxValue;
+                Marker.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Marker.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void OnRulerSizeChanged(object sender, SizeChangedEventArgs e) => RefreshRuler();

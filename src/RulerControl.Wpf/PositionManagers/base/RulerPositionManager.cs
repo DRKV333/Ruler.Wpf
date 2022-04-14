@@ -30,9 +30,9 @@ namespace RulerControl.Wpf.PositionManagers
         public abstract double GetSize();
         public abstract double GetHeight();
 
-        public bool UpdateMakerPosition(Line marker, Point position)
+        public double? UpdateMakerPosition(Line marker, Point position)
         {
-            if (marker == null) return false;
+            if (marker == null) return null;
 
             return OnUpdateMakerPosition(marker, position);
         }
@@ -53,7 +53,7 @@ namespace RulerControl.Wpf.PositionManagers
             OnUpdateStepRepeaterControl(control, brush, stepSize);
         }
 
-        protected abstract bool OnUpdateMakerPosition(Line marker, Point position);
+        protected abstract double? OnUpdateMakerPosition(Line marker, Point position);
         protected abstract void OnUpdateStepRepeaterControl(Rectangle control, VisualBrush brush, double stepSize);
         protected abstract void OnUpdateFirstStepControl(Canvas control, double stepSize);
 
